@@ -67,8 +67,8 @@ class TempusDominusMixin:
             return cdn_media()
         return forms.Media()
 
-    def render(self, name, value, attrs=None, renderer=None):
-        context = self.get_context(name, value, attrs)
+    def get_context(self, name, value, attrs=None):
+        context = super().get_context(name, value, attrs)
 
         # self.attrs = user-defined attributes from __init__
         # attrs = attributes added for rendering.
@@ -130,24 +130,20 @@ class TempusDominusMixin:
 
         # picker_id below has to be changed to underscores, as hyphens are not
         # valid in JS function names.
-        field_html = render_to_string(
-            self.template_name,
-            {
-                "type": context["widget"]["type"],
-                "picker_id": context["widget"]["attrs"]["id"].replace("-", "_"),
-                "name": context["widget"]["name"],
-                "attrs": mark_safe(attr_html),
-                "js_options": mark_safe(json.dumps(options)),
-                "prepend": prepend,
-                "append": append,
-                "icon_toggle": icon_toggle,
-                "input_toggle": input_toggle,
-                "input_group": input_group,
-                "size": size,
-            },
-        )
-
-        return mark_safe(force_text(field_html))
+        return {
+            **context,
+            "type": context["widget"]["type"],
+            "picker_id": context["widget"]["attrs"]["id"].replace("-", "_"),
+            "name": context["widget"]["name"],
+            "attrs": mark_safe(attr_html),
+            "js_options": mark_safe(json.dumps(options)),
+            "prepend": prepend,
+            "append": append,
+            "icon_toggle": icon_toggle,
+            "input_toggle": input_toggle,
+            "input_group": input_group,
+            "size": size,
+        }
 
     def moment_option(self, value):
         """
